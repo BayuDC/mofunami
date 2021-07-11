@@ -1,4 +1,5 @@
 from discord.ext import commands
+from config import prefix
 
 
 class General(commands.Cog):
@@ -12,7 +13,7 @@ class General(commands.Cog):
     @commands.command()
     async def say(self, ctx: commands.Context):
         msg = ctx.message
-        text = msg.content.replace('.say', '', 1)
+        text = msg.content.replace(f'{prefix}say', '', 1)
 
         try:
             await msg.delete()
