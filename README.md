@@ -1,2 +1,3 @@
-# mafunami
- A simple discord music bot
+# Mofunami
+
+Simple Discord bot written in python
