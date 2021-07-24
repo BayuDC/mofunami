@@ -15,5 +15,6 @@ jobs:
                 heroku_api_key: ${{secrets.HEROKU_API_KEY}}
                 heroku_app_name: "mofunami" 
                 heroku_email: "dev.bayudc@gmail.com"
+                buildpack: https://github.com/heroku/heroku-buildpack-python.git
             env:
               HD_BOT_TOKEN: ${{secrets.BOT_TOKEN}}
