@@ -1,10 +1,11 @@
 import os
 
 from discord.ext import commands
-from config import prefix
+from config import prefix as bot_prefix
 
-bot = commands.Bot(prefix)
 token = os.getenv('BOT_TOKEN')
+prefix = os.getenv('BOT_PREFIX') or bot_prefix
+bot = commands.Bot(prefix)
 
 if not token:
     print('Bot token not found')
