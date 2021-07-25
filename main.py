@@ -1,6 +1,8 @@
 import os
 
 from discord.ext import commands
+from discord.ext.commands.errors import CommandNotFound
+from nekos.nekos import textcat
 from config import prefix as bot_prefix
 
 token = os.getenv('BOT_TOKEN')
@@ -15,6 +17,13 @@ if not token:
 @bot.event
 async def on_ready():
     print('Bot is ready')
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, CommandNotFound):
+        return await ctx.send('Command not found')
+    raise error
 
 
 for filename in os.listdir('./cogs'):
