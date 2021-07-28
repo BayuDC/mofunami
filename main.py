@@ -1,18 +1,13 @@
-import os
-
+from os import listdir
 from discord.ext import commands
 from discord.ext.commands.errors import CommandNotFound
-from nekos.nekos import textcat
-from config import prefix as bot_prefix
-
-token = os.getenv('BOT_TOKEN')
-prefix = os.getenv('BOT_PREFIX') or bot_prefix
-bot = commands.Bot(prefix)
+from config import prefix, token
 
 if not token:
     print('Bot token not found')
     exit()
 
+bot = commands.Bot(prefix)
 
 @bot.event
 async def on_ready():
@@ -23,10 +18,9 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if isinstance(error, CommandNotFound):
         return await ctx.send('Command not found')
-    raise error
 
 
-for filename in os.listdir('./cogs'):
+for filename in listdir('./cogs'):
     if filename.endswith('.py'):
         bot.load_extension(f"cogs.{filename.replace('.py', '')}")
 
