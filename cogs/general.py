@@ -1,5 +1,5 @@
 from discord.ext import commands
-from config import prefix
+from discord.ext.commands import errors
 
 
 class General(commands.Cog):
@@ -11,12 +11,17 @@ class General(commands.Cog):
         await ctx.send('Pong!')
 
     @commands.command()
-    async def say(self, ctx: commands.Context):
-        msg = ctx.message
-        text = msg.content.replace(f'{prefix}say', '', 1)
+    async def say(self, ctx: commands.Context, *args):
+        if not args:
+            return await ctx.send("I can't say nothing")
+
+        text = ' '.join(args)
 
         try:
-            await msg.delete()
+            if ctx.invoked_with == 'say':
+                await ctx.message.delete()
+        except errors.CommandInvokeError:
+            pass
         finally:
             await ctx.send(text)
 

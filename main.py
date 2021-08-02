@@ -1,4 +1,5 @@
-from os import listdir
+import os
+
 from discord.ext import commands
 from discord.ext.commands.errors import CommandNotFound
 from config import prefix, token
@@ -8,6 +9,7 @@ if not token:
     exit()
 
 bot = commands.Bot(prefix)
+
 
 @bot.event
 async def on_ready():
@@ -20,7 +22,7 @@ async def on_command_error(ctx, error):
         return await ctx.send('Command not found')
 
 
-for filename in listdir('./cogs'):
+for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
         bot.load_extension(f"cogs.{filename.replace('.py', '')}")
 
