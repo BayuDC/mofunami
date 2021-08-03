@@ -1,49 +1,61 @@
+from discord import Embed
 from discord.ext import commands, tasks
-from discord.ext.commands.errors import BadArgument, CommandNotFound
+from core import loop_errors
+from core.loop import Loop
 
 
 class Utility(commands.Cog):
     def __init__(self, bot) -> None:
         self.bot = bot
 
+    # ? TODO
+    # * check before invoke
+    # * infinity loop
+    # * stop loop command
     @commands.command()
     async def loop(self, ctx: commands.Context, *args):
-        if len(args) == 0:
-            raise BadArgument
+        if not args:
+            raise loop_errors.MissingRequiredArgument
 
-        interval = count = command = None
+        # * create loop object
+        loop = Loop(args)
 
-        if args[0].isdigit():
-            interval, *args = args
-            interval = int(interval)
-
-        if args[0].isdigit():
-            count, *args = args
-            count = int(count)
-
-        command, *args = args
-
-        interval = interval or 1
-        count = count or 10
-        command = self.bot.get_command(command)
-
+        # * prepare command for loop
+        command: commands.Command = self.bot.get_command(loop.command)
         if command is None:
-            raise CommandNotFound
+            raise loop_errors.CommandNotFound
+        if command.name == ctx.command.name:
+            raise loop_errors.CommandProhibited
 
-        @tasks.loop(seconds=interval, count=count)
+        # * create loop task
+        @tasks.loop(seconds=loop.interval, count=loop.count)
         async def action():
-            await ctx.invoke(command, *args)
+            await ctx.invoke(command, *loop.args)
 
+        # * send success message
+        embed = Embed(title='Loop created successfully')
+
+        embed.add_field(name='Command', value=f"`{command.name}{loop.pretty_args()}`", inline=False)
+        embed.add_field(name='Interval', value=loop.pretty_time(), inline=False)
+        embed.add_field(name='Count', value=f"`{loop.count}`", inline=False)
+
+        await ctx.send(embed=embed)
+
+        # * start loop
         action.start()
 
     @loop.error
     async def loop_error(self, ctx, error):
         try:
             raise error
-        except CommandNotFound:
-            await ctx.send("Can not start loop")
-        except BadArgument:
-            await ctx.send("Argument `command` is required")
+        except loop_errors.MissingRequiredArgument:
+            await ctx.send("I can't loop nothing")
+        except loop_errors.CommandNotFound:
+            await ctx.send('Please input a valid command for loop')
+        except loop_errors.CommandProhibited:
+            await ctx.send(f"Can't loop command `{ctx.command.name}`")
+        except:
+            await ctx.send('Something went wrong')
 
 
 def setup(bot):
